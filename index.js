@@ -38,6 +38,28 @@ function JwtVerification(req, res, next) {
 
 }
 
+const adminVerification = async (req, res, next) => {
+    const decodedEmail = req.decoded.email;
+    const query = { email: decodedEmail };
+    const user = await usersCollection.findOne(query);
+
+    if (user?.role !== 'Admin') {
+        return res.status(403).send({ message: 'forbidden access' })
+    }
+    next();
+}
+
+const sellerVerification = async (req, res, next) => {
+    const decodedEmail = req.decoded.email;
+    const query = { email: decodedEmail };
+    const user = await usersCollection.findOne(query);
+
+    if (user?.role !== 'Seller') {
+        return res.status(403).send({ message: 'forbidden access' })
+    }
+    next();
+}
+
 
 async function run() {
     try {
@@ -53,6 +75,8 @@ async function run() {
             }
             res.status(403).send({ accessToken: '' })
         });
+
+
 
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
