@@ -64,6 +64,9 @@ const sellerVerification = async (req, res, next) => {
 async function run() {
     try {
         const usersCollection = client.db("UsedLapi").collection("users");
+        const brandCollection = client.db("UsedLapi").collection("brand");
+        const usedLaptopCollection = client.db("UsedLapi").collection("laptopcollection");
+        const bookingsCollection = client.db("UsedLapi").collection("booked");
 
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
@@ -76,7 +79,25 @@ async function run() {
             res.status(403).send({ accessToken: '' })
         });
 
+        app.get('/brand', async (req, res) => {
+            const query = {};
+            const cursor = brandCollection.find(query);
+            const brands = await cursor.toArray();
+            res.send(brands);
+        });
 
+        app.post('/bookings', async (req, res) => {
+            const booking = req.body;
+            const result = await bookingsCollection.insertOne(booking);
+            res.send(result);
+        });
+
+        app.get('/laptopcollection/:brand', async (req, res) => {
+            const brand = req.params.brand;
+            const query = { brand: brand };
+            const allLaptop = await usedLaptopCollection.find(query).toArray();
+            res.send(allLaptop);
+        })
 
         app.get('/users/admin/:email', async (req, res) => {
             const email = req.params.email;
@@ -92,16 +113,17 @@ async function run() {
             res.send({ sellerCheck: user?.role === 'Seller' });
         })
 
-        // app.put('/users', async (req, res) => {
+        // app.put('/users/:email', async (req, res) => {
+        //     const email = req.params.email;
         //     const user = req.body;
+        //     const filter = { email: email }
         //     const options = { upsert: true };
         //     const updatedDoc = {
-        //         $set: {
-        //             user
-        //         }
+        //         $set: user
         //     }
-        //     const result = await usersCollection.updateOne(updatedDoc, options);
-        //     res.send(result);
+        //     const result = await usersCollection.updateOne(filter, updatedDoc, options);
+        //     const token = jwt.sign(user, process.env.ACCESS_TOKEN)
+        //     res.send(result, token);
         //     console.log(result);
         // });
 
