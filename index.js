@@ -38,28 +38,6 @@ function JwtVerification(req, res, next) {
 
 }
 
-const adminVerification = async (req, res, next) => {
-    const decodedEmail = req.decoded.email;
-    const query = { email: decodedEmail };
-    const user = await usersCollection.findOne(query);
-
-    if (user?.role !== 'Admin') {
-        return res.status(403).send({ message: 'forbidden access' })
-    }
-    next();
-}
-
-const sellerVerification = async (req, res, next) => {
-    const decodedEmail = req.decoded.email;
-    const query = { email: decodedEmail };
-    const user = await usersCollection.findOne(query);
-
-    if (user?.role !== 'Seller') {
-        return res.status(403).send({ message: 'forbidden access' })
-    }
-    next();
-}
-
 
 async function run() {
     try {
@@ -67,6 +45,28 @@ async function run() {
         const brandCollection = client.db("UsedLapi").collection("brand");
         const usedLaptopCollection = client.db("UsedLapi").collection("laptopcollection");
         const bookingsCollection = client.db("UsedLapi").collection("booked");
+
+        const adminVerification = async (req, res, next) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await usersCollection.findOne(query);
+
+            if (user?.role !== 'Admin') {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+            next();
+        }
+
+        const sellerVerification = async (req, res, next) => {
+            const decodedEmail = req.decoded.email;
+            const query = { email: decodedEmail };
+            const user = await usersCollection.findOne(query);
+
+            if (user?.role !== 'Seller') {
+                return res.status(403).send({ message: 'forbidden access' })
+            }
+            next();
+        }
 
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
@@ -86,6 +86,12 @@ async function run() {
             res.send(brands);
         });
 
+        app.post('/laptopcollection', JwtVerification, sellerVerification, async (req, res) => {
+            const collection = req.body;
+            const result = await usedLaptopCollection.insertOne(collection);
+            res.send(result);
+        });
+
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
             const result = await bookingsCollection.insertOne(booking);
@@ -97,6 +103,14 @@ async function run() {
             const query = { brand: brand };
             const allLaptop = await usedLaptopCollection.find(query).toArray();
             res.send(allLaptop);
+        })
+
+        app.get('/dashboard/myproducts/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { seller: email };
+            const result = await usedLaptopCollection.find(query).toArray();
+            res.send(result);
+            console.log(result);
         })
 
         app.get('/users/admin/:email', async (req, res) => {
