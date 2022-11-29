@@ -92,6 +92,19 @@ async function run() {
             res.send({ sellerCheck: user?.role === 'Seller' });
         })
 
+        // app.put('/users', async (req, res) => {
+        //     const user = req.body;
+        //     const options = { upsert: true };
+        //     const updatedDoc = {
+        //         $set: {
+        //             user
+        //         }
+        //     }
+        //     const result = await usersCollection.updateOne(updatedDoc, options);
+        //     res.send(result);
+        //     console.log(result);
+        // });
+
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await usersCollection.insertOne(user);
