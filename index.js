@@ -45,6 +45,8 @@ async function run() {
         const brandCollection = client.db("UsedLapi").collection("brand");
         const usedLaptopCollection = client.db("UsedLapi").collection("laptopcollection");
         const bookingsCollection = client.db("UsedLapi").collection("booked");
+        const blogCollection = client.db("UsedLapi").collection("blog");
+        const statsCollection = client.db("UsedLapi").collection("stats");
 
         const adminVerification = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -84,6 +86,20 @@ async function run() {
             const cursor = brandCollection.find(query);
             const brands = await cursor.toArray();
             res.send(brands);
+        });
+
+        app.get('/blog', async (req, res) => {
+            const query = {};
+            const cursor = blogCollection.find(query);
+            const blogs = await cursor.toArray();
+            res.send(blogs);
+        });
+
+        app.get('/stats', async (req, res) => {
+            const query = {};
+            const cursor = statsCollection.find(query);
+            const stats = await cursor.toArray();
+            res.send(stats);
         });
 
         app.post('/laptopcollection', JwtVerification, sellerVerification, async (req, res) => {
