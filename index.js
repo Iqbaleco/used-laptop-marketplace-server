@@ -105,12 +105,32 @@ async function run() {
             res.send(allLaptop);
         })
 
+        app.get('/dashboard/allbuyers/:role', async (req, res) => {
+            const role = req.params.role;
+            const query = { role: role };
+            const allBuyers = await usersCollection.find(query).toArray();
+            res.send(allBuyers);
+        })
+
+        app.get('/dashboard/allsellers/:role', async (req, res) => {
+            const role = req.params.role;
+            const query = { role: role };
+            const allSellers = await usersCollection.find(query).toArray();
+            res.send(allSellers);
+        })
+
         app.get('/dashboard/myproducts/:email', async (req, res) => {
             const email = req.params.email;
             const query = { seller: email };
             const result = await usedLaptopCollection.find(query).toArray();
             res.send(result);
-            console.log(result);
+        })
+
+        app.get('/dashboard/myorders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { buyerEmail: email };
+            const result = await bookingsCollection.find(query).toArray();
+            res.send(result);
         })
 
         app.get('/users/admin/:email', async (req, res) => {
