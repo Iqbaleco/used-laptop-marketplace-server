@@ -163,6 +163,13 @@ async function run() {
             res.send({ sellerCheck: user?.role === 'Seller' });
         })
 
+        app.get('/laptopcollection', async (req, res) => {
+            const query = {};
+            const cursor = usedLaptopCollection.find(query);
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
         // app.put('/users/:email', async (req, res) => {
         //     const email = req.params.email;
         //     const user = req.body;
@@ -182,6 +189,34 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         });
+
+        app.delete('/laptopcollection/:name', async (req, res) => {
+            const name = req.params.name;
+            const query = { name: name };
+            // const filter = { _id: ObjectId(id) };
+            const result = await usedLaptopCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        app.put('/laptopcollection/:name', async (req, res) => {
+            const name = req.params.name;
+            const query = { name: name };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    sale: true
+                }
+            }
+            const result = await usedLaptopCollection.updateOne(query, updatedDoc, options);
+            res.send(result);
+        });
+
+        app.delete('/users/:name', async (req, res) => {
+            const name = req.params.name;
+            const query = { name: name };
+            const result = await usersCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
     } finally {
